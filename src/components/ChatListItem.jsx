@@ -3,8 +3,15 @@ import { formatTimeShort } from '../utils/time'
 
 // 채팅방 하나를 나타내는 목록 아이템. 상대방 닉네임, 마지막 메시지, 시간, 안읽음 표시를 보여준다.
 export default function ChatListItem({ chat, myUid }) {
+  const isGroup = chat.participants.length > 2
   const otherUid = chat.participants.find((uid) => uid !== myUid)
-  const otherName = chat.participantInfo?.[otherUid]?.nickname || '알 수 없음'
+  const otherName = isGroup
+    ? chat.groupName ||
+      chat.participants
+        .filter((uid) => uid !== myUid)
+        .map((uid) => chat.participantInfo?.[uid]?.nickname || '알 수 없음')
+        .join(', ')
+    : chat.participantInfo?.[otherUid]?.nickname || '알 수 없음'
 
   const myLastRead = chat.lastRead?.[myUid]
   const hasUnread =

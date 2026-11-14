@@ -85,9 +85,13 @@ export default function ChatRoomPage() {
     return <div className="center-message">불러오는 중...</div>
   }
 
+  const isGroup = chat.participants.length > 2
   const otherUid = chat.participants.find((uid) => uid !== currentUser.uid)
-  const otherName = chat.participantInfo?.[otherUid]?.nickname || '알 수 없음'
-  const otherLastRead = chat.lastRead?.[otherUid]
+  const otherParticipants = chat.participants.filter((uid) => uid !== currentUser.uid)
+  const roomTitle = isGroup
+    ? chat.groupName ||
+      otherParticipants.map((uid) => chat.participantInfo?.[uid]?.nickname || '알 수 없음').join(', ')
+    : chat.participantInfo?.[otherUid]?.nickname || '알 수 없음'
 
   return (
     <div className="page chat-room">
@@ -95,19 +99,27 @@ export default function ChatRoomPage() {
         <Link to="/chats" className="icon-button" title="뒤로">
           ←
         </Link>
-        <h1>{otherName}</h1>
+        <h1>{roomTitle}</h1>
         <span style={{ width: 32 }} />
       </header>
 
       <div className="message-list">
         {messages.map((message) => {
           const isMine = message.senderId === currentUser.uid
-          const isRead =
-            !!otherLastRead &&
-            !!message.createdAt &&
-            otherLastRead.toMillis() >= message.createdAt.toMillis()
+          // 나를 제외한 참여자 중 이 메시지를 아직 안 읽은 사람 수 (1:1이면 0 또는 1)
+          const unreadCount = otherParticipants.filter((uid) => {
+            const lastRead = chat.lastRead?.[uid]
+            return !message.createdAt || !lastRead || lastRead.toMillis() < message.createdAt.toMillis()
+          }).length
+          const senderName = chat.participantInfo?.[message.senderId]?.nickname
           return (
-            <MessageBubble key={message.id} message={message} isMine={isMine} isRead={isRead} />
+            <MessageBubble
+              key={message.id}
+              message={message}
+              isMine={isMine}
+              unreadCount={unreadCount}
+              senderName={isGroup && !isMine ? senderName : null}
+            />
           )
         })}
         <div ref={bottomRef} />

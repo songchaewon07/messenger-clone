@@ -179,6 +179,16 @@ body {
   background: #fafafa;
 }
 
+.user-list-item.selected {
+  background: #fff8d6;
+}
+
+.sender-name {
+  font-size: 11px;
+  color: #888;
+  margin: 0 0 2px 2px;
+}
+
 .auth-page {
   flex: 1;
   display: flex;

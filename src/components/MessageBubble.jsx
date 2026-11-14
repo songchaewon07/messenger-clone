@@ -1,15 +1,18 @@
 import { formatTimeFull } from '../utils/time'
 
-export default function MessageBubble({ message, isMine, isRead }) {
+export default function MessageBubble({ message, isMine, unreadCount, senderName }) {
   return (
     <div className={`message-row ${isMine ? 'mine' : 'theirs'}`}>
       {isMine && (
         <div className="message-meta">
-          {!isRead && <span className="unread-mark">1</span>}
+          {unreadCount > 0 && <span className="unread-mark">{unreadCount}</span>}
           <span className="message-time">{formatTimeFull(message.createdAt)}</span>
         </div>
       )}
-      <div className="message-bubble">{message.text}</div>
+      <div>
+        {senderName && <p className="sender-name">{senderName}</p>}
+        <div className="message-bubble">{message.text}</div>
+      </div>
       {!isMine && (
         <div className="message-meta">
           <span className="message-time">{formatTimeFull(message.createdAt)}</span>
